@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>For Mania 🖤</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@400;600&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080706; --gold: #c9963a; --red: #9b1c1c;
+    --cream: #f2e8d9; --ink: #1c1710; --muted: #8a7a68;
+    --env-dark: #18140e; --env-mid: #221c12;
+  }
+  html, body {
+    width: 100%; min-height: 100vh;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px 16px 48px; overflow-x: hidden;
+  }
+  canvas#stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .glow {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(201,150,58,0.065) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+    animation: glowBreath 5s ease-in-out infinite;
+  }
+  @keyframes glowBreath {
+    0%,100% { transform: translate(-50%,-50%) scale(1); opacity:.6; }
+    50%      { transform: translate(-50%,-50%) scale(1.15); opacity:1; }
+  }
+  .scene {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 290px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .pre-label {
+    font-family: 'Cinzel', serif; font-size: 9px;
+    letter-spacing: 5px; color: rgba(201,150,58,0.45);
+    text-transform: uppercase; margin-bottom: 18px;
+    animation: fadeIn 1.2s ease forwards; opacity: 0;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+/* ENVELOPE */
+.env-wrap {
+width: 260px; position: relative;
+cursor: pointer; user-select: none;
+-webkit-tap-highlight-color: transparent;
+animation: floatUp 0.8s ease 0.3s both;
+}
+@keyframes floatUp {
+from { opacity:0; transform: translateY(18px); }
+to   { opacity:1; transform: translateY(0); }
+}
+.env-wrap:not(.opened) .envelope { animation: idle 4s ease-in-out 1.5s infinite; }
+@keyframes idle {
+0%,100% { transform: translateY(0); }
+50%      { transform: translateY(-5px); }
+}
+.envelope { width: 260px; position: relative; }
+.env-body {
+width: 260px; height: 170px;
+background: linear-gradient(170deg, var(–env-mid) 0%, var(–env-dark) 100%);
+border-radius: 3px 3px 7px 7px; position: relative;
+box-shadow: 0 22px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(201,150,58,0.12), inset 0 1px 0 rgba(201,150,58,0.08);
+overflow: hidden;
+}
+.env-body::after {
+content: ‘’; position: absolute; inset: 0;
+background: repeating-linear-gradient(45deg, transparent, transparent 18px, rgba(201,150,58,0.012) 18px, rgba(201,150,58,0.012) 19px);
+}
+.env-side-l, .env-side-r { position: absolute; bottom: 0; width: 0; height: 0; }
+.env-side-l { left: 0; border-bottom: 95px solid rgba(255,255,255,0.022); border-right: 130px solid transparent; }
+.env-side-r { right: 0; border-bottom: 95px solid rgba(255,255,255,0.022); border-left: 130px solid transparent; }
+.env-peek {
+position: absolute; bottom: 0; left: 50%;
+transform: translateX(-50%) translateY(0px);
+width: 230px; background: var(–cream);
+border-radius: 2px 2px 0 0; z-index: 3;
+transition: transform 0.9s cubic-bezier(0.34,1.4,0.64,1) 0.5s; overflow: hidden;
+}
+.env-peek-text {
+padding: 6px 10px 4px; text-align: center;
+font-family: ‘Cormorant Garamond’, serif; font-style: italic;
+font-size: 10px; color: var(–muted); letter-spacing: 1px;
+opacity: 0; transition: opacity 0.4s ease 1s;
+}
+.env-wrap.opened .env-peek { transform: translateX(-50%) translateY(-160px); }
+.env-wrap.opened .env-peek-text { opacity: 1; }
+.env-flap {
+position: absolute; top: 0; left: 0;
+width: 260px; height: 0;
+border-left: 130px solid transparent;
+border-right: 130px solid transparent;
+border-top: 130px solid var(–env-mid);
+transform-origin: top center;
+transition: transform 1s cubic-bezier(0.4,0,0.2,1);
+z-index: 10; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+}
+.env-wrap.opened .env-flap { transform: rotateX(-180deg); }
+.wax {
+position: absolute; top: 50%; left: 50%;
+transform: translate(-50%, calc(-50% + 26px));
+z-index: 20; transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+}
+.wax-disc {
+width: 48px; height: 48px;
+background: radial-gradient(circle at 38% 32%, #d93025, #8b1a1a 55%, #4f0f0f);
+border-radius: 50%; display: flex; align-items: center; justify-content: center;
+box-shadow: 0 4px 14px rgba(139,26,26,0.7), 0 0 0 2px rgba(201,150,58,0.3), inset 0 1px 0 rgba(255,255,255,0.12);
+position: relative;
+}
+.wax-disc::before {
+content: ‘’; position: absolute; inset: 6px;
+border: 1px solid rgba(255,255,255,0.15); border-radius: 50%;
+}
+.wax-letter { font-family: ‘Cinzel’, serif; font-size: 18px; color: rgba(255,255,255,0.88); position: relative; z-index: 1; }
+.env-wrap.opened .wax { opacity: 0; transform: translate(-50%, calc(-50% + 26px)) scale(0.5); }
+.tap-hint {
+margin-top: 16px; font-family: ‘Cormorant Garamond’, serif;
+font-style: italic; font-size: 12px;
+color: rgba(201,150,58,0.45); letter-spacing: 1px;
+animation: fadeIn 1s ease 2s both, blink 2.5s ease 3s infinite; text-align: center;
+}
+@keyframes blink { 0%,100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+
+/* LETTER */
+.letter {
+display: none; width: 260px; background: var(–cream);
+border-radius: 2px; padding: 24px 20px 22px; position: relative;
+box-shadow: 0 28px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(201,150,58,0.1);
+opacity: 0; transform: translateY(14px);
+transition: opacity 0.7s ease, transform 0.7s ease; overflow: hidden;
+}
+.letter::after {
+content: ‘’; position: absolute; inset: 0;
+background: repeating-linear-gradient(transparent, transparent 26px, rgba(0,0,0,0.04) 26px, rgba(0,0,0,0.04) 27px);
+pointer-events: none;
+}
+.letter.show { display: block; }
+.letter.visible { opacity: 1; transform: translateY(0); }
+.l-border { position: absolute; inset: 8px; border: 1px solid rgba(201,150,58,0.25); pointer-events: none; }
+.l-border::before, .l-border::after {
+content: ‘✦’; position: absolute; color: rgba(201,150,58,0.4);
+font-size: 8px; left: 50%; transform: translateX(-50%);
+}
+.l-border::before { top: -6px; }
+.l-border::after  { bottom: -6px; }
+.l-inner { position: relative; z-index: 1; }
+.l-head {
+text-align: center; margin-bottom: 16px;
+padding-bottom: 12px; border-bottom: 1px solid rgba(201,150,58,0.18);
+}
+.l-eyebrow {
+display: block; font-family: ‘Cinzel’, serif; font-size: 7.5px;
+letter-spacing: 4px; color: var(–gold); text-transform: uppercase; margin-bottom: 8px;
+}
+.l-name { font-family: ‘Cormorant Garamond’, serif; font-size: 36px; font-weight: 300; font-style: italic; color: var(–red); line-height: 1; margin-bottom: 5px; }
+.l-dateline { font-family: ‘Cinzel’, serif; font-size: 8px; letter-spacing: 3px; color: var(–muted); }
+.l-body { font-family: ‘Cormorant Garamond’, serif; font-size: 14.5px; line-height: 1.85; color: var(–ink); margin-bottom: 14px; }
+.l-body p + p { margin-top: 9px; }
+.l-body em { font-style: italic; color: var(–red); }
+.l-details {
+border: 1px solid rgba(201,150,58,0.2); background: rgba(201,150,58,0.03);
+border-radius: 2px; padding: 11px 13px; margin: 14px 0;
+}
+.l-row {
+display: flex; justify-content: space-between; align-items: baseline;
+padding: 4px 0; font-size: 12.5px; color: var(–ink);
+border-bottom: 1px dashed rgba(0,0,0,0.07);
+}
+.l-row:last-child { border-bottom: none; }
+.l-row .lk { font-family: ‘Cinzel’, serif; font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; color: var(–muted); }
+.l-row .lv { font-weight: 300; font-style: italic; }
+.l-row .lv.locked { letter-spacing: 5px; color: var(–muted); font-style: normal; font-size: 10.5px; font-family: ‘Cinzel’, serif; }
+.l-hint {
+margin: 14px 0 4px; padding: 11px 13px;
+background: rgba(155,28,28,0.05);
+border-left: 2px solid rgba(155,28,28,0.28);
+border-radius: 0 2px 2px 0;
+}
+.l-hint-label {
+font-family: ‘Cinzel’, serif; font-size: 7.5px; letter-spacing: 3px;
+text-transform: uppercase; color: rgba(155,28,28,0.5); margin-bottom: 5px; display: block;
+}
+.l-hint-text { font-family: ‘Cormorant Garamond’, serif; font-style: italic; font-size: 13.5px; color: var(–ink); line-height: 1.65; }
+.l-sig { text-align: right; margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(201,150,58,0.14); }
+.l-sig-label { display: block; font-family: ‘Cinzel’, serif; font-size: 7.5px; letter-spacing: 2px; color: var(–muted); text-transform: uppercase; margin-bottom: 3px; }
+.l-sig-name { font-family: ‘Cormorant Garamond’, serif; font-size: 22px; font-style: italic; font-weight: 300; color: var(–red); }
+.bottom-note { margin-top: 22px; text-align: center; opacity: 0; transition: opacity 0.8s ease; }
+.bottom-note.show { opacity: 1; }
+.bottom-note p { font-family: ‘Cormorant Garamond’, serif; font-style: italic; font-size: 12px; color: rgba(201,150,58,0.4); letter-spacing: 1px; }
+</style>
+
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="glow"></div>
+<div class="scene">
+  <div class="pre-label" id="preLabel">A private invitation</div>
+  <div class="env-wrap" id="envWrap" onclick="open_envelope()">
+    <div class="envelope" id="envelope">
+      <div class="env-body">
+        <div class="env-side-l"></div>
+        <div class="env-side-r"></div>
+        <div class="env-peek"><div class="env-peek-text">for your eyes only ♥</div></div>
+      </div>
+      <div class="env-flap"></div>
+      <div class="wax"><div class="wax-disc"><span class="wax-letter">S</span></div></div>
+    </div>
+  </div>
+  <div class="tap-hint" id="tapHint">tap to open ↑</div>
+  <div class="letter" id="letter">
+    <div class="l-border"></div>
+    <div class="l-inner">
+      <div class="l-head">
+        <span class="l-eyebrow">A Private Invitation</span>
+        <div class="l-name">Mania,</div>
+        <div class="l-dateline">April · XVII · MMXXVI</div>
+      </div>
+      <div class="l-body">
+        <p>You are cordially invited to a day I planned — <em>just for us.</em></p>
+        <p>I'm not telling you everything. Just know I thought about <em>you</em> when I planned every single part of it.</p>
+        <p>All you have to do is show up and trust me. <em>I've got the rest handled.</em></p>
+      </div>
+      <div class="l-details">
+        <div class="l-row"><span class="lk">Date</span><span class="lv">Friday, April 17</span></div>
+        <div class="l-row"><span class="lk">Time</span><span class="lv">All day</span></div>
+        <div class="l-row"><span class="lk">Location</span><span class="lv locked">· · · · · ·</span></div>
+        <div class="l-row"><span class="lk">Dress code</span><span class="lv">Comfortable shoes. That's it.</span></div>
+      </div>
+      <div class="l-hint">
+        <span class="l-hint-label">a small clue</span>
+        <div class="l-hint-text">"Some people spend their whole lives chasing the finish line — you'll see what that looks like up close."</div>
+      </div>
+      <div class="l-body">
+        <p>By the end of the night, you'll have a new favorite memory. <em>I promise.</em></p>
+      </div>
+      <div class="l-sig">
+        <span class="l-sig-label">With love</span>
+        <div class="l-sig-name">— always yours</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-note" id="bottomNote"><p>♥ save the date ♥</p></div>
+</div>
+<script>
+  (function() {
+    const c = document.getElementById('stars'), ctx = c.getContext('2d');
+    let W, H, stars = [];
+    function resize() { W = c.width = window.innerWidth; H = c.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    for (let i = 0; i < 100; i++) stars.push({ x: Math.random(), y: Math.random(), r: Math.random()*1.1+0.2, a: Math.random(), da: (Math.random()-0.5)*0.004, speed: Math.random()*0.00007+0.00002 });
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      stars.forEach(s => {
+        s.y -= s.speed; if (s.y < 0) s.y = 1;
+        s.a += s.da; if (s.a > 1) s.da = -Math.abs(s.da); if (s.a < 0.1) s.da = Math.abs(s.da);
+        ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(201,150,58,${s.a*0.65})`; ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+  let isOpen = false;
+  function open_envelope() {
+    if (isOpen) return; isOpen = true;
+    const wrap = document.getElementById('envWrap');
+    const hint = document.getElementById('tapHint');
+    const letter = document.getElementById('letter');
+    const bottom = document.getElementById('bottomNote');
+    const pre = document.getElementById('preLabel');
+    wrap.classList.add('opened'); wrap.style.cursor = 'default';
+    hint.style.display = 'none'; pre.style.opacity = '0';
+    wrap.style.transition = 'transform 0.6s ease 0.3s';
+    wrap.style.transform = 'translateY(-8px)';
+    setTimeout(() => { letter.classList.add('show'); setTimeout(() => letter.classList.add('visible'), 60); }, 950);
+    setTimeout(() => bottom.classList.add('show'), 2100);
+  }
+</script>
+</body>
+</html>
